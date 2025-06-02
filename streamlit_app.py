@@ -1,14 +1,14 @@
 import streamlit as st
 import psycopg
 import pandas as pd
-from dotenv import load_dotenv
-import os
+# from dotenv import load_dotenv
+# import os
 
-load_dotenv()
+# load_dotenv()
 
 
 def get_api_data():
-    dbconn = os.getenv("DB_CONN")
+    dbconn = st.secrets("DB_CONN")
     conn = psycopg.connect(dbconn)
     cur = conn.cursor()
 
@@ -24,7 +24,7 @@ def get_api_data():
     return pd.DataFrame(data, columns=['date', 'open','high','low','close', 'volume'])
 
 def get_scraped_data():
-    dbconn = os.getenv("DB_CONN")
+    dbconn = st.secrets("DB_CONN")
     conn = psycopg.connect(dbconn)
     cur = conn.cursor()
 
