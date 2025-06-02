@@ -8,7 +8,7 @@ import pandas as pd
 
 
 def get_api_data():
-    dbconn = st.secrets("DB_CONN")
+    dbconn = st.secrets["DB_CONN"]
     conn = psycopg.connect(dbconn)
     cur = conn.cursor()
 
@@ -24,7 +24,7 @@ def get_api_data():
     return pd.DataFrame(data, columns=['date', 'open','high','low','close', 'volume'])
 
 def get_scraped_data():
-    dbconn = st.secrets("DB_CONN")
+    dbconn = st.secrets["DB_CONN"]
     conn = psycopg.connect(dbconn)
     cur = conn.cursor()
 
