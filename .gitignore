@@ -1,1 +1,4 @@
 .env
+package/
+*.zip
+\.streamlit
