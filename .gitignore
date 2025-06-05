@@ -1,4 +1,5 @@
 .env
 package/
 *.zip
-.streamlit/secrets.toml
+.streamlit
+__pycache__
