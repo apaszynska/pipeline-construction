@@ -1,0 +1,7 @@
+[theme]
+base = "dark"
+primaryColor = "#FFA500"              # Orange accent (buttons, highlights)
+backgroundColor = "#1A2634"           # Deep navy blue background
+secondaryBackgroundColor = "#273A58"  # Slightly lighter blue for panels/widgets
+textColor = "#FFFFFF"                 # White text for contrast
+font = "sans serif"
