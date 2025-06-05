@@ -1,4 +1,4 @@
 .env
 package/
 *.zip
-\.streamlit
+.streamlit/secrets.toml
