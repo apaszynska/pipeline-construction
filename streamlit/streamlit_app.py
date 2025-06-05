@@ -1,6 +1,8 @@
 import streamlit as st
 import psycopg
 import pandas as pd
+import altair as alt
+
 # from dotenv import load_dotenv
 # import os
 
@@ -55,10 +57,14 @@ def get_scraped_data():
             with conn.cursor() as cur:
                 cur.execute("SELECT * FROM articles;")
                 data = cur.fetchall()
-        df = pd.DataFrame(data, columns=['date', 'title'])
+        # Filter rows that have exactly 3 columns (date, title, link)
+        # data = [row for row in data if len(row) == 3]
+
+        # Now create the DataFrame safely
+        df = pd.DataFrame(data, columns=['date', 'title', 'link'])
         df['date'] = pd.to_datetime(df['date'])  # convert 'date' column to datetime
         df.set_index('date', inplace=True)
-        df = df.sort_index(ascending = False)  # sort by date index
+        df = df.sort_index(ascending=False)
         print(f"Fetched {len(df)} articles, date range {df.index.min()} to {df.index.max()}")
         return df
     except Exception as e:
@@ -83,7 +89,7 @@ with st.sidebar:
 
 # Main page content
 if st.session_state.page == "home":
-    st.markdown('<h1 style="color:#FFA500;">Welcome to Bitcoin Hub</h1>', unsafe_allow_html=True)
+    st.markdown('<h1 style="color:#FFA500;font-size:4rem;">Welcome to Bitcoin Hub</h1>', unsafe_allow_html=True)
     st.write("Stay informed with the latest Bitcoin news, real-time price updates, and expert insights—all in one place.")
     # Create two columns for widgets
     col1, col2 = st.columns(2)
@@ -113,10 +119,86 @@ if st.session_state.page == "home":
 elif st.session_state.page == "news":
     st.markdown('<h1 style="color:#FFA500;">📰 News</h1>', unsafe_allow_html=True)
     df_articles = get_scraped_data()
-    st.dataframe(df_articles, use_container_width=True)
+    
+    if not df_articles.empty:
+        df_articles['title_link'] = df_articles.apply(
+            lambda row: f'<a href="{row["link"]}" style="color: inherit; text-decoration: none;" target="_blank">{row["title"]}</a>',
+            axis=1
+        )
+
+        html_table = """
+                <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #444; /* dark border */
+            padding: 8px;
+            text-align: left;
+            color: white;
+        }
+        th {
+            background-color: #FFA500; /* orange header */
+            color: black; /* black text on orange */
+        }
+        tr:hover td {
+            background-color: rgba(255, 255, 255, 0.05); /* subtle transparent white */
+        }
+
+        /* Link styling */
+        td a {
+            color: white !important;               /* white text */
+            text-decoration: none !important;
+        }
+        td a:hover {
+            color: #FFA500 !important;             /* orange on hover */
+            text-decoration: underline !important;
+            cursor: pointer;
+        }
+
+        /* First column (date) */
+        th:nth-child(1), td:nth-child(1) {
+            width: 120px;
+            min-width: 120px;
+            white-space: nowrap;
+        }
+        </style>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Title</th>
+                </tr>
+            </thead>
+            <tbody>
+        """
+
+        for date, row in df_articles.iterrows():
+            date_str = date.strftime("%Y-%m-%d") if hasattr(date, "strftime") else str(date)
+            html_table += f"<tr><td>{date_str}</td><td>{row['title_link']}</td></tr>"
+
+        html_table += "</tbody></table>"
+
+        st.markdown(html_table, unsafe_allow_html=True)
+    else:
+        st.write("No articles available.")
+
+
 
 elif st.session_state.page == "data":
     st.markdown('<h1 style="color:#FFA500;">📊 Bitcoin Market Data</h1>', unsafe_allow_html=True)
     df_data = get_api_data()
-    st.dataframe(df_data, use_container_width=True)
-    st.line_chart(df_data)
+    choice = st.radio("", ["Trend Graph", "Table View"])
+    if choice == "Trend Graph":
+        st.line_chart(df_data[['open','close']], color = [
+    "#FFA500",  # classic orange
+    "#994D00"   # dark burnt orange
+])
+    if choice == "Table View":
+        if not df_data.empty:
+            st.dataframe(df_data, use_container_width=True)
+        else:
+            st.write("No data available to display.")
+        
