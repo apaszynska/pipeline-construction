@@ -29,10 +29,10 @@ def scrape_data(event, context):
             except ValueError:
                 print(f"Skipping the article due to unrecognized date format")
 
-        #if the list is empty then...
-    if not dates:
+        #the dates[] is populated only if date and titlle found in article[], so the date can be parsed into a datetime object, if strptime fails, the append op are skipped
+    if not dates: #if the list is empty then...
         print("No articles found")
-        return {"date_scraped": None, "articles": []}
+        return {"date_scraped": None, "articles": []}  #needed for finding the lastest date
     
     today = datetime.datetime.today().date()
     # Try to find articles from today - if date=today then for date,time in our results we create a new list of tuples

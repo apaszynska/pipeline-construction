@@ -55,7 +55,7 @@ def get_scraped_data():
         with psycopg.connect(dbconn) as conn:   #Using with psycopg.connect(dbconn) as conn: opens the connection
                                                 #and automatically closes it when the block ends, even if an error happens inside the block.
             with conn.cursor() as cur:
-                cur.execute("SELECT * FROM articles;")
+                cur.execute("SELECT date, title, link FROM articles;")
                 data = cur.fetchall()
         # Filter rows that have exactly 3 columns (date, title, link)
         # data = [row for row in data if len(row) == 3]
